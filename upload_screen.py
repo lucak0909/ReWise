@@ -1,33 +1,43 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from generate_quiz import generate_mcq_from_file
+from parser import parse_raw_output
 
+raw_output = ""  # Global or module-level to reuse after generation
 
-def choose_file():
-    file_path = filedialog.askopenfilename(
-        title="Choose a study file",
-        filetypes=[("Text files", ["*.txt", "*.pdf", "*.pptx", "*.docx"])]
-    )
+def select_file():
+    global raw_output
+    file_path = filedialog.askopenfilename()
     if file_path:
         try:
-            quiz = generate_mcq_from_file(file_path)
-            quiz_output.delete("1.0", tk.END)
-            quiz_output.insert(tk.END, quiz)
+            output = generate_mcq_from_file(file_path)
+            raw_output = output  # Save for parser use
+            text_output.delete("1.0", tk.END)
+            text_output.insert(tk.END, output)
         except Exception as e:
-            messagebox.showerror("Error", f"Could not generate quiz:\n{e}")
+            messagebox.showerror("Error", f"Quiz generation failed:\n{e}")
 
-# GUI Setup
+def parse_output():
+    global raw_output
+    if not raw_output.strip():
+        messagebox.showwarning("No Data", "No quiz output to parse.")
+        return
+    try:
+        parse_raw_output(raw_output)
+        messagebox.showinfo("Success", "Quiz saved to questions.csv.")
+    except Exception as e:
+        messagebox.showerror("Parse Error", str(e))
+
+# UI Setup
 app = tk.Tk()
-app.title("ReWise - Upload")
-app.geometry("375x667")
+app.title("Upload and Generate Quiz")
+app.geometry("500x600")
 
-tk.Label(app, text="Upload Study Material", font=("Helvetica", 18)).pack(pady=20)
+tk.Button(app, text="Select File", command=select_file).pack(pady=10)
 
-tk.Button(app, text="Select File", command=choose_file).pack(pady=10)
+text_output = tk.Text(app, wrap=tk.WORD)
+text_output.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
 
-tk.Label(app, text="Generated Quiz:", font=("Helvetica", 14)).pack(pady=10)
-
-quiz_output = tk.Text(app, height=20, wrap="word")
-quiz_output.pack(padx=10, pady=10, fill="both", expand=True)
+tk.Button(app, text="Parse Output", command=parse_output).pack(pady=10)
 
 app.mainloop()
