@@ -36,8 +36,16 @@ Answer: C
     client.beta.threads.messages.create(
         thread_id=thread.id,
         role="user",
-        content="Generate a quiz from the uploaded file.",
-        file_ids=[file_upload.id]
+        content=[
+            {
+                "type": "text",
+                "text": "Generate a quiz from the uploaded file."
+            },
+            {
+                "type": "file_id",
+                "file_id": file_upload.id
+            }
+        ]
     )
 
     # 5. Run the assistant on the thread
