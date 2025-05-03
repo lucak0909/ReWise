@@ -14,7 +14,18 @@ def generate_mcq_from_file(file_path, num_questions=5):
     # Create assistant with file_search tool
     assistant = client.beta.assistants.create(
         name="Quiz Generator",
-        instructions=f"""Read the uploaded file and generate {num_questions} multiple choice questions with 4 answer options each.""",
+        instructions=(
+            f"Read the uploaded file and generate {num_questions} multiple-choice questions. "
+            "For each question, follow this exact format:\n\n"
+            "Q1. <question text>\n"
+            "A. <option A>\n"
+            "B. <option B>\n"
+            "C. <option C>\n"
+            "D. <option D>\n"
+            "Answer: <correct letter>\n"
+            "Explanation: <1-2 sentence explanation of why that answer is correct>\n\n"
+            "Use this format for all questions, incrementing the number for each question (Q2, Q3, etc.)."
+        ),
         model="gpt-4o",
         tools=[{"type": "file_search"}]
     )
