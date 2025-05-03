@@ -13,27 +13,43 @@ if len(sys.argv) < 2:
 username = sys.argv[1]
 
 def load_user_and_parent():
-    """Load all users, find the student row and their parent row by matching child_username."""
-    with open(USER_FILE, newline='') as f:
-        rows = list(csv.reader(f))
-    header, data = rows[0], rows[1:]
+    student_row = None
+    parent_row = None
+    all_rows = []
 
-    # 1) Find the student record
-    student = next((r for r in data if r[0] == username and r[4] == "student"), None)
-    if not student:
+    with open(USER_FILE, "r") as f:
+        reader = csv.reader(f)
+        headers = next(reader, None)
+        for row in reader:
+            if not row:
+                continue
+            all_rows.append(row)
+            if row[0] == username:  # 'username' is the current student
+                student_row = row
+
+    if student_row is None:
         raise Exception("Student not found")
 
-    # 2) Find the parent whose child_username == this student's username
-    parent = next((r for r in data if r[5] == username and r[4] == "parent"), None)
-    if not parent:
+    # Now find the parent whose child_username matches this student
+    with open(USER_FILE, "r") as f2:
+        reader2 = csv.reader(f2)
+        next(reader2, None)
+        for row in reader2:
+            if not row:
+                continue
+            if row[4] == "parent" and row[5] == student_row[0]:
+                parent_row = row
+                break
+
+    if parent_row is None:
         raise Exception("Parent not found")
 
-    # Parse numeric values
-    stud_bal  = int(student[2])
-    par_bal   = int(parent[2])
-    rate      = float(parent[3])
+    stud_bal = float(student_row[2])
+    par_bal = float(parent_row[2])
+    rate = float(parent_row[3])
 
-    return rows, student, parent, stud_bal, par_bal, rate
+    return all_rows, student_row, parent_row, stud_bal, par_bal, rate
+
 
 def save_balances(all_rows, student_row, parent_row, new_stud_bal, new_par_bal):
     """Update both student and parent balances in-memory, then write out."""
@@ -121,25 +137,27 @@ random.shuffle(questions)
 # — Build UI —
 app = tk.Tk()
 app.title("ReWise Quiz")
-app.geometry("400x600")
+app.geometry("500x750")
+app.configure(bg="#D9ECF8")
 
 # --- Log out button ---
 logout_btn = tk.Button(app, text="Log Out", command=logout)
 # pack it in the top-right corner
 logout_btn.pack(anchor="ne", padx=10, pady=5)
 
-tk.Label(app, text=f"Hello, {username}", font=("Helvetica", 16)).pack(pady=10)
-tk.Label(app, text="Your Earnings:", font=("Helvetica", 14)).pack()
+tk.Label(app, text=f"Hello, {username}", font=("Helvetica", 16), bg="#D9ECF8").pack(pady=10)
+tk.Label(app, text="Your Earnings:", font=("Helvetica", 14), bg="#D9ECF8").pack()
 earnings_var = tk.StringVar(value=f"${stud_bal}")
-tk.Label(app, textvariable=earnings_var, font=("Helvetica", 20)).pack(pady=5)
+tk.Label(app, textvariable=earnings_var, font=("Helvetica", 20), bg="#D9ECF8").pack(pady=5)
 
-question_lbl = tk.Label(app, text="", wraplength=360, font=("Helvetica", 14))
+question_lbl = tk.Label(app, text="", wraplength=360, font=("Helvetica", 14), bg="#D9ECF8")
 question_lbl.pack(pady=20)
 
 ans_buttons = []
 sel_idx = None
 for i in range(4):
-    b = tk.Button(app, text="", width=40, command=lambda i=i: select_answer(i))
+    # noinspection PyUnresolvedReferences
+    b = tk.Button(app, text="", width=40, wraplength=300, justify="left", anchor="w", command=lambda i=i: select_answer(i))
     b.pack(pady=4)
     ans_buttons.append(b)
 
