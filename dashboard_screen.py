@@ -13,16 +13,19 @@ if len(sys.argv) < 3:
 username, user_type = sys.argv[1], sys.argv[2]
 
 def load_user_data():
-    with open(USER_FILE, "r", newline='') as f:
-        reader = list(csv.reader(f))
-    header, rows = reader[0], reader[1:]
-    for row in rows:
-        if row[0] == username:
-            # ensure full length
-            while len(row) < len(header):
-                row.append("")
-            return reader, row
-    raise Exception("User not found")
+    all_rows = []
+    current_user = None
+    with open(USER_FILE, "r") as f:
+        reader = csv.reader(f)
+        headers = next(reader, None)
+        for row in reader:
+            if not row:
+                continue
+            all_rows.append(row)
+            if row[0] == username:  # assuming 'username' is available here
+                current_user = row
+    return all_rows, current_user
+
 
 def update_user_data(new_balance, new_rate):
     # update both parent and their child
@@ -79,7 +82,8 @@ amount_per_question = float(current_user[3])
 # GUI Setup
 app = tk.Tk()
 app.title("ReWise Dashboard (Parent)" if user_type=="parent" else "ReWise Dashboard")
-app.geometry("375x667")
+app.geometry("500x750")
+app.configure(bg="#D9ECF8")
 
 # --- Log out button ---
 logout_btn = tk.Button(app, text="Log Out", command=logout)
@@ -87,25 +91,25 @@ logout_btn = tk.Button(app, text="Log Out", command=logout)
 logout_btn.pack(anchor="ne", padx=10, pady=5)
 
 
-tk.Label(app, text=f"Welcome, {username}", font=("Helvetica", 16)).pack(pady=10)
-tk.Label(app, text="Dashboard", font=("Helvetica", 20)).pack(pady=10)
+tk.Label(app, text=f"Welcome, {username}", font=("Helvetica", 16), bg="#D9ECF8").pack(pady=10)
+tk.Label(app, text="Dashboard", font=("Helvetica", 20), bg="#D9ECF8").pack(pady=10)
 
 # Balance display
 balance_var = tk.StringVar(value=str(balance))
-tk.Label(app, text="Learning Balance:").pack()
-tk.Label(app, textvariable=balance_var, font=("Helvetica", 16)).pack(pady=5)
+tk.Label(app, text="Learning Balance:", bg="#D9ECF8").pack()
+tk.Label(app, textvariable=balance_var, font=("Helvetica", 16), bg="#D9ECF8").pack(pady=5)
 
 # Top-Up
-tk.Label(app, text="Top Up Amount ($)").pack(pady=10)
+tk.Label(app, text="Top Up Amount ($)", bg="#D9ECF8").pack(pady=10)
 entry_topup = tk.Entry(app)
 entry_topup.pack()
 tk.Button(app, text="Fake Top-Up", command=fake_top_up).pack(pady=10)
 
 # Amount per question
 amount_per_question_var = tk.StringVar(value=str(amount_per_question))
-tk.Label(app, text="Amount Earned per Correct Question ($)").pack(pady=10)
+tk.Label(app, text="Amount Earned per Correct Question ($)", bg="#D9ECF8").pack(pady=10)
 tk.Entry(app, textvariable=amount_per_question_var).pack()
-tk.Button(app, text="Save Rate", command=save_amount_per_question).pack(pady=5)
+tk.Button(app, text="Save Rate", command=save_amount_per_question, bg="#D9ECF8").pack(pady=5)
 
 # Navigation
 if user_type == "parent":
