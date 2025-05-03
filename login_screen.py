@@ -4,6 +4,8 @@ import subprocess
 import csv
 import os
 
+from PIL import Image, ImageTk  # Fixed import
+
 USER_FILE = "users.csv"
 
 # Ensure users.csv exists with correct headers
@@ -28,8 +30,10 @@ def login(event=None):  # event optional for Enter key
 
     with open(USER_FILE, "r") as f:
         reader = csv.reader(f)
-        next(reader)
+        next(reader, None)
         for row in reader:
+            if not row:
+                continue  # Skip empty rows
             if row[0] == username and row[1] == password:
                 open_dashboard(username, row[4])  # pass user_type
                 return
@@ -53,8 +57,10 @@ def signup():
     # Check for existing username
     with open(USER_FILE, "r") as f:
         reader = csv.reader(f)
-        next(reader)
+        next(reader, None)
         for row in reader:
+            if not row:
+                continue  # Skip empty rows
             if row[0] == username:
                 messagebox.showerror("Error", "Username already exists.")
                 return
@@ -72,24 +78,37 @@ def signup():
 # GUI Setup
 app = tk.Tk()
 app.title("ReWise Login")
-app.geometry("375x667")
+app.geometry("500x750")
+app.configure(bg="#D9ECF8")
 
 # Title
-tk.Label(app, text="ReWise", font=("Helvetica", 24)).pack(pady=40)
+tk.Label(app, text="ReWise", font=("Helvetica", 24), bg="#D9ECF8").pack(pady=40)
+
+# Image loading
+image_path = os.path.join("asset", "ReWise - Dolphin Logo.png")
+if os.path.exists(image_path):
+    img = Image.open(image_path)  # Fixed from tk.image.open
+    img = img.resize((200, 200))
+    img_tk = ImageTk.PhotoImage(img)
+    img_logo = tk.Label(app, image=img_tk, bg="#D9ECF8")
+    img_logo.image = img_tk
+    img_logo.pack(pady=10)
+else:
+    tk.Label(app, text="Image not found", bg="#D9ECF8", fg="red").pack(pady=20)
 
 # Username
-tk.Label(app, text="Username").pack()
+tk.Label(app, text="Username", bg="#D9ECF8").pack()
 username_entry = tk.Entry(app)
 username_entry.pack(pady=5)
 
 # Password
-tk.Label(app, text="Password").pack()
+tk.Label(app, text="Password", bg="#D9ECF8").pack()
 password_entry = tk.Entry(app, show="*")
 password_entry.pack(pady=5)
 
 # User type switch (radio buttons)
 user_type_var = tk.StringVar(value="student")
-tk.Label(app, text="Login As").pack(pady=10)
+tk.Label(app, text="Login As", bg="#D9ECF8").pack(pady=10)
 student_rb = tk.Radiobutton(app, text="Student", variable=user_type_var, value="student")
 parent_rb = tk.Radiobutton(app, text="Parent", variable=user_type_var, value="parent")
 student_rb.pack()
@@ -97,7 +116,7 @@ parent_rb.pack()
 
 # Child username field (only for parents)
 child_frame = tk.Frame(app)
-tk.Label(child_frame, text="Child Username").pack()
+tk.Label(child_frame, text="Child Username", bg="#D9ECF8").pack()
 child_entry = tk.Entry(child_frame)
 child_entry.pack(pady=5)
 
