@@ -1,3 +1,4 @@
+# login_screen.py (edited)
 import tkinter as tk
 from tkinter import messagebox
 import subprocess
@@ -6,19 +7,17 @@ import os
 
 USER_FILE = "users.csv"
 
-# Ensure users.csv exists
+# Ensure users.csv exists with correct headers
 if not os.path.exists(USER_FILE):
     with open(USER_FILE, "w", newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(["username", "password", "balance"])  # Added "balance" column
+        writer.writerow(["username", "password", "balance", "rate", "user_type"])
 
-
-def open_dashboard(username):
+def open_dashboard(username, user_type):
     app.destroy()
-    subprocess.run(["python", "dashboard_screen.py", username])
+    subprocess.run(["python", "dashboard_screen.py", username, user_type])
 
-
-def login(event=None):  # event is optional for Enter key
+def login(event=None):
     username = username_entry.get().strip()
     password = password_entry.get().strip()
 
@@ -27,15 +26,15 @@ def login(event=None):  # event is optional for Enter key
         next(reader)
         for row in reader:
             if row[0] == username and row[1] == password:
-                open_dashboard(username)
+                open_dashboard(username, row[3])  # pass user_type
                 return
 
     messagebox.showerror("Login Failed", "Invalid username or password.")
 
-
 def signup():
     username = username_entry.get().strip()
     password = password_entry.get().strip()
+    user_type = user_type_var.get()
 
     if not username or not password:
         messagebox.showwarning("Missing Info", "Both fields required.")
@@ -51,11 +50,10 @@ def signup():
 
     with open(USER_FILE, "a", newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([username, password, "0"])  # New users start with $0
+        writer.writerow([username, password, "0", "0", user_type])
 
-    messagebox.showinfo("Success", "Account created! Logging you in...")
-    open_dashboard(username)
-
+    messagebox.showinfo("Success", f"{user_type.capitalize()} account created! Logging you in...")
+    open_dashboard(username, user_type)
 
 # GUI Setup
 app = tk.Tk()
@@ -71,6 +69,12 @@ username_entry.pack(pady=5)
 tk.Label(app, text="Password").pack()
 password_entry = tk.Entry(app, show="*")
 password_entry.pack(pady=5)
+
+# User type switch (radio buttons)
+user_type_var = tk.StringVar(value="student")
+tk.Label(app, text="Login As").pack(pady=10)
+tk.Radiobutton(app, text="Student", variable=user_type_var, value="student").pack()
+tk.Radiobutton(app, text="Parent", variable=user_type_var, value="parent").pack()
 
 # Bind Enter key to login
 app.bind('<Return>', login)
