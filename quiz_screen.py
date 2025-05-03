@@ -3,6 +3,7 @@ from tkinter import messagebox
 import csv
 import sys
 import random
+import subprocess
 
 USER_FILE     = "users.csv"
 QUESTION_FILE = "questions.csv"
@@ -107,6 +108,11 @@ def next_question():
     for i, a in enumerate(current_q["answers"]):
         ans_buttons[i].config(text=f"{a['label']}. {a['text']}", relief=tk.RAISED)
 
+def logout():
+    app.destroy()
+    # re-open the login screen
+    subprocess.run(["python", "login_screen.py"])
+
 # — Initialization —
 all_rows, student_row, parent_row, stud_bal, par_bal, rate = load_user_and_parent()
 questions = load_questions()
@@ -116,6 +122,11 @@ random.shuffle(questions)
 app = tk.Tk()
 app.title("ReWise Quiz")
 app.geometry("400x600")
+
+# --- Log out button ---
+logout_btn = tk.Button(app, text="Log Out", command=logout)
+# pack it in the top-right corner
+logout_btn.pack(anchor="ne", padx=10, pady=5)
 
 tk.Label(app, text=f"Hello, {username}", font=("Helvetica", 16)).pack(pady=10)
 tk.Label(app, text="Your Earnings:", font=("Helvetica", 14)).pack()

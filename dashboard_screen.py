@@ -3,6 +3,8 @@ from tkinter import messagebox
 import csv
 import sys
 import os
+import subprocess
+
 
 USER_FILE = "users.csv"
 
@@ -63,16 +65,27 @@ def open_upload():
     app.destroy()
     os.system("python upload_screen.py")
 
+def logout():
+    app.destroy()
+    # re-open the login screen
+    subprocess.run(["python", "login_screen.py"])
+
 # Load user data
 all_rows, current_user = load_user_data()
 header = all_rows[0]
-balance    = int(current_user[2])
+balance = int(current_user[2])
 amount_per_question = float(current_user[3])
 
 # GUI Setup
 app = tk.Tk()
 app.title("ReWise Dashboard (Parent)" if user_type=="parent" else "ReWise Dashboard")
 app.geometry("375x667")
+
+# --- Log out button ---
+logout_btn = tk.Button(app, text="Log Out", command=logout)
+# pack it in the top-right corner
+logout_btn.pack(anchor="ne", padx=10, pady=5)
+
 
 tk.Label(app, text=f"Welcome, {username}", font=("Helvetica", 16)).pack(pady=10)
 tk.Label(app, text="Dashboard", font=("Helvetica", 20)).pack(pady=10)
