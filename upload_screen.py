@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from generate_quiz import extract_text, generate_mcq
+from generate_quiz import generate_mcq_from_file
+
 
 def choose_file():
     file_path = filedialog.askopenfilename(
@@ -9,8 +10,7 @@ def choose_file():
     )
     if file_path:
         try:
-            text = extract_text(file_path)
-            quiz = generate_mcq(text)
+            quiz = generate_mcq_from_file(file_path)
             quiz_output.delete("1.0", tk.END)
             quiz_output.insert(tk.END, quiz)
         except Exception as e:
