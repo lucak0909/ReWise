@@ -38,7 +38,8 @@ def logout():
 # UI Setup
 app = tk.Tk()
 app.title("Upload and Generate Quiz")
-app.geometry("500x600")
+app.geometry("500x750")
+app.configure(bg="#D9ECF8")
 
 # --- Log out button ---
 logout_btn = tk.Button(app, text="Log Out", command=logout)
