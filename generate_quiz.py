@@ -22,9 +22,10 @@ def generate_mcq_from_file(file_path, num_questions=5):
             "B. <option B>\n"
             "C. <option C>\n"
             "D. <option D>\n"
-            "Answer: <correct letter>\n"
-            "Explanation: <1-2 sentence explanation of why that answer is correct>\n\n"
+            "Answer: <correct letter>\n\n"
             "Use this format for all questions, incrementing the number for each question (Q2, Q3, etc.)."
+            "DO NOT BEGIN THE OUTPUT WITH ANYTHING BUT THE START OF THE FIRST QUESTION"
+            "DO NOT PUT '【4:0†facts.pdf】' AT THE END OF EACH ANSWER"
         ),
         model="gpt-4o",
         tools=[{"type": "file_search"}]
